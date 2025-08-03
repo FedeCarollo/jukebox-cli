@@ -1,33 +1,13 @@
-use std::fs;
-
 use ratatui::{
     Frame,
     layout::Rect,
     widgets::{Block, Borders, Paragraph},
 };
 
-/// Stato per la visualizzazione del jukebox come matrice di caratteri
-pub struct JukeboxMatrixState {
-    pub matrix: Vec<Vec<char>>,
-}
-
-impl JukeboxMatrixState {
-    pub fn new() -> Self {
-        // Stato iniziale di esempio: una matrice 5x9 con "JUKEBOX" centrato
-        // let mut matrix = fs::read_to_string("jukebox.png")
-        //     .unwrap()
-        //     .lines()
-        //     .map(|line| line.chars().collect::<Vec<char>>())
-        //     .collect::<Vec<Vec<char>>>();
-
-        Self {
-            matrix: vec![vec![]],
-        }
-    }
-}
+use crate::jukebox_state::JukeboxState;
 
 /// Disegna la matrice di caratteri del jukebox
-pub fn render_jukebox_matrix(f: &mut Frame, area: Rect, state: &JukeboxMatrixState) {
+pub fn render_jukebox_matrix(f: &mut Frame, area: Rect, _state: &JukeboxState) {
     use image::{GenericImageView, Pixel};
     use ratatui::text::{Line, Span};
 

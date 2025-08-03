@@ -2,9 +2,9 @@ use std::io;
 use std::path::Path;
 
 use crossterm::event;
-use ratatui::{layout::{Constraint, Direction, Layout}, prelude::Backend, widgets::{Block, Borders}, Terminal};
+use ratatui::{prelude::Backend, Terminal};
 
-use crate::{jukebox_state, screen::jukebox_side::{render_jukebox_matrix, JukeboxMatrixState}};
+use crate::{jukebox_state, screen::{block_utils::{make_horizontal_chunks, make_vertical_chunks}, jukebox_side::{render_jukebox_matrix}}};
 use super::playlist_side::render_playlist_side;
 use super::controls_block::render_controls_block;
 
@@ -14,36 +14,32 @@ pub fn run_app<B: Backend>(terminal: &mut Terminal<B>) -> io::Result<()> {
     // Usa una directory di esempio - puoi cambiarla
     let music_path = Path::new(".");
     let mut jukebox_state = jukebox_state::JukeboxState::new(music_path);
-    let jukebox_matrix_state = JukeboxMatrixState::new();
     loop {
         terminal.draw(|f| {
             let size = f.area();
             // Dividi lo schermo in verticale: blocco superiore 80%, inferiore 20%
-            let vertical_chunks = Layout::default()
-                .direction(Direction::Vertical)
-                .margin(2)
-                .constraints([
-                    Constraint::Percentage(80),
-                    Constraint::Percentage(20),
-                ].as_ref())
-                .split(size);
+            let vertical_chunks = make_vertical_chunks(size, &[80, 20]);
 
             // Nel blocco superiore, dividi in due blocchi orizzontali
-            let top_chunks = Layout::default()
-                .direction(Direction::Horizontal)
-                .constraints([
-                    Constraint::Percentage(60),
-                    Constraint::Percentage(30),
-                ].as_ref())
-                .split(vertical_chunks[0]);
+            let top_chunks = make_horizontal_chunks(vertical_chunks[0], &[70, 30]);
 
-            let block_left = Block::default().title("Left").borders(Borders::ALL);
-            f.render_widget(block_left, top_chunks[0]);
-            render_playlist_side(f, top_chunks[1], &jukebox_state);
-            render_jukebox_matrix(f, top_chunks[0], &jukebox_matrix_state);
+            let jukebox_info_chunks = make_vertical_chunks(top_chunks[0], &[90, 10]);
+
+            let jukebox_block = jukebox_info_chunks[0]; //Show jukebox
+            let _info_block = jukebox_info_chunks[1];    //Show volume level and song progress
+
+            let song_block = top_chunks[1];
+            let controls_block = vertical_chunks[1];
+
+            f.render_widget(
+                ratatui::widgets::Block::default().title("Jukebox CLI").borders(ratatui::widgets::Borders::ALL),
+                _info_block,
+            );
+            render_playlist_side(f, song_block, &jukebox_state);
+            render_jukebox_matrix(f, jukebox_block, &jukebox_state);
 
             // Blocco inferiore con i controlli
-            render_controls_block(f, vertical_chunks[1]);
+            render_controls_block(f, controls_block);
         })?;
 
         if event::poll(std::time::Duration::from_millis(100))? {

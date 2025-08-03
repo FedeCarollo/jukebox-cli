@@ -16,6 +16,7 @@ pub struct SongItem {
     duration: Option<Duration>,
 }
 
+#[allow(dead_code)]
 impl SongItem {
     fn new(full_path: PathBuf, title: String, position: usize) -> Self {
         Self {
@@ -69,6 +70,7 @@ pub struct PlaybackState {
     is_paused: bool,
 }
 
+#[allow(dead_code)]
 impl PlaybackState {
     pub fn new(song: SongItem) -> Self {
         Self {
@@ -121,6 +123,7 @@ pub struct JukeboxState {
     sink: Option<Sink>,
 }
 
+#[allow(dead_code)]
 impl JukeboxState {
     pub fn new(initial_path: &Path) -> Self {
         // Read directory and get all mp3 files
