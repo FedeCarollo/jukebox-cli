@@ -1,42 +1,28 @@
 use ratatui::{
-    Frame,
-    layout::Rect,
-    widgets::{Block, Borders, Paragraph},
+    layout::Rect, text::{Line}, widgets::{Block, Borders, Paragraph}, Frame
 };
 
-use crate::jukebox_state::JukeboxState;
+use crate::{canvas_state::CanvasState, jukebox_state::JukeboxState};
 
 /// Disegna la matrice di caratteri del jukebox
-pub fn render_jukebox_matrix(f: &mut Frame, area: Rect, _state: &JukeboxState) {
-    use image::{GenericImageView, Pixel};
-    use ratatui::text::{Line, Span};
+pub fn render_jukebox_matrix(f: &mut Frame, area: Rect, state: &mut CanvasState, jukebox_state: &JukeboxState) {
+    // Aggiorna lo stato delle note (con probabilità di aggiungere/rimuovere)
+    state.update_notes(area.width, area.height, jukebox_state.is_playing());
+    state.update_is_playing(jukebox_state.is_playing());
 
-    // Load an image and convert it to ASCII art lines
+    let canvas = state.get_canvas(area.width, area.height);
 
-    // Try to load the image file (e.g., "jukebox.png")
-    let img = image::open("jukebox.png").unwrap();
+    let mut lines: Vec<Line<'static>> = Vec::new();
+    for row in canvas {
+        let line = Line::from(row);
+        lines.push(line);
+    }
 
-    // Resize for terminal display
-    let (width, height) = (area.width as u32, area.height as u32);
-    let img = img.resize_exact(width, height, image::imageops::FilterType::Nearest);
+    let paragraph = Paragraph::new(lines)
+        .block(Block::default().borders(Borders::ALL).title("Jukebox Canvas"))
+        .wrap(ratatui::widgets::Wrap { trim: true });
 
-    let lines: Vec<Line> = (0..img.height())
-        .map(|y| {
-            let spans: Vec<Span> = (0..img.width())
-                .map(|x| {
-                    let pixel = img.get_pixel(x, y).to_rgb();
-                    let [r, g, b] = pixel.0;
-                    // Use a full block character for best density
-                    Span::styled(
-                        "█",
-                        ratatui::style::Style::default().fg(ratatui::style::Color::Rgb(r, g, b)),
-                    )
-                })
-                .collect();
-            Line::from(spans)
-        })
-        .collect();
-    let paragraph =
-        Paragraph::new(lines).block(Block::default().title("Jukebox").borders(Borders::ALL));
     f.render_widget(paragraph, area);
+
+    
 }

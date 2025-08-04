@@ -16,6 +16,7 @@ pub fn make_horizontal_chunks(area: Rect, proportions: &[u16]) -> Vec<Rect> {
         .to_vec()
 }
 
+#[allow(dead_code)]
 pub fn make_chunks(area: Rect, direction: Direction, constraints: &[Constraint]) -> Vec<Rect> {
     Layout::default()
         .direction(direction)

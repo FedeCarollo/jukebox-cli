@@ -4,7 +4,7 @@ use std::path::Path;
 use crossterm::event;
 use ratatui::{prelude::Backend, Terminal};
 
-use crate::{jukebox_state, screen::{block_utils::{make_horizontal_chunks, make_vertical_chunks}, jukebox_side::{render_jukebox_matrix}}};
+use crate::{canvas_state, jukebox_state, screen::{block_utils::{make_horizontal_chunks, make_vertical_chunks}, jukebox_side::render_jukebox_matrix}};
 use super::playlist_side::render_playlist_side;
 use super::controls_block::render_controls_block;
 use super::info_block::render_info_block;
@@ -15,6 +15,7 @@ pub fn run_app<B: Backend>(terminal: &mut Terminal<B>) -> io::Result<()> {
     // Usa una directory di esempio - puoi cambiarla
     let music_path = Path::new(".");
     let mut jukebox_state = jukebox_state::JukeboxState::new(music_path);
+    let mut canvas_state = canvas_state::CanvasState::new();
     loop {
         terminal.draw(|f| {
             let size = f.area();
@@ -34,7 +35,7 @@ pub fn run_app<B: Backend>(terminal: &mut Terminal<B>) -> io::Result<()> {
 
             render_info_block(f, info_block, &jukebox_state);
             render_playlist_side(f, song_block, &jukebox_state);
-            render_jukebox_matrix(f, jukebox_block, &jukebox_state);
+            render_jukebox_matrix(f, jukebox_block, &mut canvas_state, &jukebox_state);
 
             // Blocco inferiore con i controlli
             render_controls_block(f, controls_block);

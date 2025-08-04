@@ -5,6 +5,7 @@ use std::{io, error::Error};
 use crate::screen::main_loop::run_app;
 
 mod jukebox_state;
+mod canvas_state;
 mod screen;
 
 fn main() -> Result<(), Box<dyn Error>> {
