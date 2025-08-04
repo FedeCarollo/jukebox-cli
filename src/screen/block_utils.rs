@@ -15,3 +15,11 @@ pub fn make_horizontal_chunks(area: Rect, proportions: &[u16]) -> Vec<Rect> {
         .split(area)
         .to_vec()
 }
+
+pub fn make_chunks(area: Rect, direction: Direction, constraints: &[Constraint]) -> Vec<Rect> {
+    Layout::default()
+        .direction(direction)
+        .constraints(constraints.to_vec())
+        .split(area)
+        .to_vec()
+}

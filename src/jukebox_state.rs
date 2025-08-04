@@ -23,11 +23,11 @@ impl SongItem {
             full_path: full_path.clone(),
             title,
             position,
-            duration: Self::duration(full_path),
+            duration: Self::calculate_duration(full_path),
         }
     }
 
-    fn duration(full_path: PathBuf) -> Option<Duration> {
+    fn calculate_duration(full_path: PathBuf) -> Option<Duration> {
         use std::fs::File;
         use symphonia::default::get_probe;
 
@@ -59,6 +59,10 @@ impl SongItem {
 
     pub fn title(&self) -> &str {
         &self.title
+    }
+
+    pub fn duration(&self) -> Option<Duration> {
+        self.duration
     }
 }
 
@@ -275,5 +279,9 @@ impl JukeboxState {
             }
         }
         0.0
+    }
+    
+    pub fn volume(&self) -> u8 {
+        self.volume
     }
 }
