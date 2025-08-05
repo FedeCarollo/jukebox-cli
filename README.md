@@ -23,7 +23,7 @@ A beautiful terminal-based music jukebox application built with Rust and Ratatui
 ### Build from Source
 
 ```bash
-git clone https://github.com/yourusername/jukebox-cli.git
+git clone https://github.com/FedeCarollo/jukebox-cli.git
 cd jukebox-cli
 cargo build --release
 ```
