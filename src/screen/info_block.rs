@@ -7,7 +7,7 @@ use ratatui::{
 };
 use std::time::Duration;
 
-/// Formatta una durata in formato mm:ss
+/// Format duration into a string "MM:SS"
 fn format_duration(duration: Duration) -> String {
     let total_seconds = duration.as_secs();
     let minutes = total_seconds / 60;
@@ -15,7 +15,7 @@ fn format_duration(duration: Duration) -> String {
     format!("{:02}:{:02}", minutes, seconds)
 }
 
-/// Ottiene l'emoji del volume basato sul livello
+/// Get emoji based on volume level
 fn get_volume_emoji(volume: u8) -> &'static str {
     match volume {
         0 => "🔇",
@@ -28,13 +28,11 @@ fn get_volume_emoji(volume: u8) -> &'static str {
 
 /// Disegna il blocco delle informazioni con progress bar e volume
 pub fn render_info_block(f: &mut Frame, area: Rect, jukebox_state: &JukeboxState) {
-    // Dividi l'area in due parti: progress (70%) e volume (30%)
+    // Split area into two parts: progress (70%) and volume (30%)
     let chunks = make_horizontal_chunks(area, &[70, 30]);
-    
-    // Progress bar per la durata
+
     render_progress_bar(f, chunks[0], jukebox_state);
     
-    // Progress bar per il volume
     render_volume_bar(f, chunks[1], jukebox_state);
 }
 
@@ -47,7 +45,7 @@ fn render_progress_bar(f: &mut Frame, area: Rect, jukebox_state: &JukeboxState) 
         let current_time = format_duration(current_pos);
         let total_time = format_duration(total_duration);
         
-        // Progress bar per la durata della canzone
+        // Progress bar for song duration
         let progress_text = format!("{} / {}", current_time, total_time);
         
         let progress_bar = Gauge::default()
@@ -57,7 +55,7 @@ fn render_progress_bar(f: &mut Frame, area: Rect, jukebox_state: &JukeboxState) 
             .ratio(progress_ratio as f64);
         f.render_widget(progress_bar, area);
     } else {
-        // Nessuna canzone in riproduzione
+        // No song playing, show a default message
         let no_progress_bar = Gauge::default()
             .block(Block::default().title("Progress").borders(Borders::ALL))
             .gauge_style(Style::default().fg(Color::Gray))

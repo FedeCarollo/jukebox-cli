@@ -187,8 +187,12 @@ impl JukeboxState {
             // If it's a different song, we'll start the new one (fall through to start new song)
         }
 
-        // Start new song (either no current playback or different song selected)
-        if let Some(song) = self.playlist.get(self.current_selection.position) {
+        // Start new song (use current_selection)
+        self.play_song_at_position(self.current_selection.position);
+    }
+    
+    fn play_song_at_position(&mut self, position: usize) {
+        if let Some(song) = self.playlist.get(position) {
             // Clone the needed data before calling self.stop()
             let song_full_path = song.full_path.clone();
             let song_clone = song.clone();
@@ -250,14 +254,14 @@ impl JukeboxState {
 
         // Implementa comportamento circolare
         let new_pos = if direction > 0 {
-            // Andando avanti: se siamo all'ultima canzone, torna alla prima
+            // Going forward: if we are at the last song, go to the first
             if current_pos >= playlist_len - 1 {
                 0
             } else {
                 (current_pos + direction).min(playlist_len - 1)
             }
         } else {
-            // Andando indietro: se siamo alla prima canzone, vai all'ultima
+            // Going backward: if we are at the first song, go to the last
             if current_pos <= 0 {
                 playlist_len - 1
             } else {
@@ -296,13 +300,20 @@ impl JukeboxState {
 
     pub fn handle_song_end(&mut self) {
         if self.is_song_finished() {
-            // If not last song go to next song
-            if self.current_selection.position < self.playlist.len() - 1 {
-                self.move_selection(1);
-                self.play();
-            } else {
-                // Otherwise stop playback
-                self.stop();
+            // Find position of currently playing song
+            if let Some(current_playback) = &self.current_playback {
+                let playing_position = current_playback.song().position;
+
+                if playing_position >= self.playlist.len() - 1 {
+                    self.stop();
+                    return; // No more songs to play
+                }
+                
+                // Next song
+                let next_position = (playing_position + 1) % self.playlist.len();
+                
+                // Play next song
+                self.play_song_at_position(next_position);
             }
         }
     }

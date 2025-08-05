@@ -48,11 +48,10 @@ fn get_song_list(jukebox_state: &JukeboxState) -> Vec<ListItem> {
         .collect()
 }
 
-/// Disegna il lato playlist (destro) con la lista delle canzoni disponibili
+/// Draw playlist list with the available songs
 pub fn render_playlist_side(f: &mut Frame, area: Rect, jukebox_state: &JukeboxState) {
     let songs: Vec<ListItem> = get_song_list(jukebox_state);
     
-    // Crea il widget List
     let songs_list = List::new(songs).block(
         Block::default()
             .title("Available Songs")
@@ -60,11 +59,10 @@ pub fn render_playlist_side(f: &mut Frame, area: Rect, jukebox_state: &JukeboxSt
     )
     .highlight_style(Style::default().add_modifier(ratatui::style::Modifier::BOLD));
     
-    // Crea il ListState e imposta la selezione corrente
+    // Make stateful list to handle selection and scrolling
     let mut list_state = ListState::default();
     let selected_index = jukebox_state.current_selection().position();
     list_state.select(Some(selected_index));
     
-    // Renderizza con stato che gestisce automaticamente lo scrolling
     f.render_stateful_widget(songs_list, area, &mut list_state);
 }

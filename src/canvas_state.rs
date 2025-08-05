@@ -109,7 +109,6 @@ impl CanvasState {
         self.floating_notes.retain(|note| !note.is_expired());
         
         // Add a note with 50% probability
-        // if rng.random_bool(0.5) && self.floating_notes.len() < 6 && width > 20 && height > 20 {
         if rng.random_bool(0.5) && self.floating_notes.len() < 6 {
             let actual_width = width.saturating_sub(2);
             let actual_height = height.saturating_sub(2);

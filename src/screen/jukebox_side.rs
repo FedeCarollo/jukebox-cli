@@ -6,7 +6,7 @@ use crate::{canvas_state::CanvasState, jukebox_state::JukeboxState};
 
 /// Disegna la matrice di caratteri del jukebox
 pub fn render_jukebox_matrix(f: &mut Frame, area: Rect, state: &mut CanvasState, jukebox_state: &JukeboxState) {
-    // Aggiorna lo stato delle note (con probabilità di aggiungere/rimuovere)
+    // Update the canvas state with the current jukebox state
     state.update_notes(area.width, area.height, jukebox_state.is_playing());
     state.update_is_playing(jukebox_state.is_playing());
 
