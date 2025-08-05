@@ -125,8 +125,9 @@ impl CanvasState {
     }
     
     pub fn get_canvas(&mut self, width: u16, height: u16) -> Vec<Vec<Span<'static>>> {
-        let actual_width = width.saturating_sub(4);
-        let actual_height = height.saturating_sub(4);
+        // Only the right border in jukebox_side, so subtract only 1 from width
+        let actual_width = width.saturating_sub(1);
+        let actual_height = height; 
         
         if actual_width == 0 || actual_height == 0 {
             return vec![vec![Span::raw(" "); 1]; 1];

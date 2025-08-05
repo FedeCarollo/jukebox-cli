@@ -19,7 +19,7 @@ pub fn render_jukebox_matrix(f: &mut Frame, area: Rect, state: &mut CanvasState,
     }
 
     let paragraph = Paragraph::new(lines)
-        .block(Block::default().borders(Borders::ALL).title("Jukebox Canvas"))
+        .block(Block::default().borders(Borders::RIGHT))
         .wrap(ratatui::widgets::Wrap { trim: true });
 
     f.render_widget(paragraph, area);

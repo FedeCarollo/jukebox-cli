@@ -34,7 +34,7 @@ pub fn run_app<B: Backend>(
             let top_chunks = make_horizontal_chunks(vertical_chunks[0], &[70, 30]);
 
             let jukebox_chunk = top_chunks[0]; // Show jukebox matrix
-            let controls_info_chunk = make_horizontal_chunks(vertical_chunks[1], &[70, 30]);
+            let controls_info_chunk = make_horizontal_chunks(vertical_chunks[1], &[50, 50]);
             let controls_chunk = controls_info_chunk[0]; // Show controls
             let info_chunk = controls_info_chunk[1]; // Show info block
             let song_chunk = top_chunks[1]; // Show playlist side
