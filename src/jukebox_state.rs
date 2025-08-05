@@ -64,6 +64,10 @@ impl SongItem {
     pub fn duration(&self) -> Option<Duration> {
         self.duration
     }
+
+    pub fn position(&self) -> usize {
+        self.position
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -84,21 +88,21 @@ impl PlaybackState {
             is_paused: false,
         }
     }
-    
+
     pub fn pause(&mut self) {
         if !self.is_paused {
             self.elapsed_before_pause += self.start_time.elapsed();
             self.is_paused = true;
         }
     }
-    
+
     pub fn resume(&mut self) {
         if self.is_paused {
             self.start_time = Instant::now();
             self.is_paused = false;
         }
     }
-    
+
     pub fn current_position(&self) -> Duration {
         if self.is_paused {
             self.elapsed_before_pause
@@ -106,11 +110,11 @@ impl PlaybackState {
             self.elapsed_before_pause + self.start_time.elapsed()
         }
     }
-    
+
     pub fn song(&self) -> &SongItem {
         &self.song
     }
-    
+
     pub fn is_paused(&self) -> bool {
         self.is_paused
     }
@@ -170,7 +174,7 @@ impl JukeboxState {
         if let Some(playback) = &mut self.current_playback {
             let current_song = &self.current_selection;
             let playing_song = playback.song();
-            
+
             // If it's the same song and paused, resume
             if current_song == playing_song && playback.is_paused() {
                 if let Some(sink) = &self.sink {
@@ -179,10 +183,10 @@ impl JukeboxState {
                 }
                 return;
             }
-            
+
             // If it's a different song, we'll start the new one (fall through to start new song)
         }
-        
+
         // Start new song (either no current playback or different song selected)
         if let Some(song) = self.playlist.get(self.current_selection.position) {
             // Clone the needed data before calling self.stop()
@@ -201,7 +205,7 @@ impl JukeboxState {
             self.current_playback = Some(PlaybackState::new(song_clone));
         }
     }
-    
+
     pub fn pause(&mut self) {
         if let Some(playback) = &mut self.current_playback {
             if !playback.is_paused() {
@@ -242,9 +246,24 @@ impl JukeboxState {
         }
 
         let current_pos = self.current_selection.position as i32;
-        let new_pos = (current_pos + direction)
-            .max(0)
-            .min(self.playlist.len() as i32 - 1) as usize;
+        let playlist_len = self.playlist.len() as i32;
+
+        // Implementa comportamento circolare
+        let new_pos = if direction > 0 {
+            // Andando avanti: se siamo all'ultima canzone, torna alla prima
+            if current_pos >= playlist_len - 1 {
+                0
+            } else {
+                (current_pos + direction).min(playlist_len - 1)
+            }
+        } else {
+            // Andando indietro: se siamo alla prima canzone, vai all'ultima
+            if current_pos <= 0 {
+                playlist_len - 1
+            } else {
+                (current_pos + direction).max(0)
+            }
+        } as usize;
 
         if let Some(song) = self.playlist.get(new_pos) {
             self.current_selection = song.clone();
@@ -260,10 +279,13 @@ impl JukeboxState {
     }
 
     pub fn is_playing(&self) -> bool {
-        self.sink.is_some() && 
-        self.current_playback.as_ref().map_or(false, |p| !p.is_paused())
+        self.sink.is_some()
+            && self
+                .current_playback
+                .as_ref()
+                .map_or(false, |p| !p.is_paused())
     }
-    
+
     pub fn is_song_finished(&self) -> bool {
         if let Some(sink) = &self.sink {
             sink.empty()
@@ -271,25 +293,26 @@ impl JukeboxState {
             false
         }
     }
-    
+
     pub fn handle_song_end(&mut self) {
         if self.is_song_finished() {
-            // Se non siamo all'ultima canzone, passa alla successiva
+            // If not last song go to next song
             if self.current_selection.position < self.playlist.len() - 1 {
                 self.move_selection(1);
                 self.play();
             } else {
-                // Se siamo all'ultima canzone, ferma la riproduzione
+                // Otherwise stop playback
                 self.stop();
             }
         }
     }
-    
+
     pub fn current_playback_position(&self) -> Duration {
-        self.current_playback.as_ref()
+        self.current_playback
+            .as_ref()
             .map_or(Duration::ZERO, |p| p.current_position())
     }
-    
+
     pub fn progress_ratio(&self) -> f32 {
         if let Some(playback) = &self.current_playback {
             if let Some(duration) = playback.song().duration {
@@ -301,7 +324,7 @@ impl JukeboxState {
         }
         0.0
     }
-    
+
     pub fn volume(&self) -> u8 {
         self.volume
     }
