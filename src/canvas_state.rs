@@ -22,8 +22,8 @@ impl FloatingNote {
         let note_index = rng.random_range(0..note_images.len());
         let note_image = &note_images[note_index];
         
-        // Random size tra 6x6 e 12x12
-        let size = rng.random_range(6..=12);
+        // Random size between 6x6 and 10x10
+        let size = rng.random_range(6..=10);
         let resized = note_image.resize_exact(
             size as u32,
             size as u32,
@@ -81,7 +81,7 @@ impl CanvasState {
             .collect::<Vec<_>>();
         
         if note_images.is_empty() {
-            panic!("Nessuna immagine trovata in img/notes");
+            panic!("No note images found in img/notes directory. Please add some images.");
         }
         
         Self {
@@ -109,14 +109,14 @@ impl CanvasState {
         self.floating_notes.retain(|note| !note.is_expired());
         
         // Add a note with 50% probability
-        if rng.random_bool(0.5) && self.floating_notes.len() < 6 && width > 20 && height > 20 {
-            let max_note_size = 12; // Dimensione massima nota
+        // if rng.random_bool(0.5) && self.floating_notes.len() < 6 && width > 20 && height > 20 {
+        if rng.random_bool(0.5) && self.floating_notes.len() < 6 {
             let actual_width = width.saturating_sub(2);
             let actual_height = height.saturating_sub(2);
             
-            if actual_width > max_note_size && actual_height > max_note_size {
-                let x = rng.random_range(2..actual_width.saturating_sub(max_note_size));
-                let y = rng.random_range(2..actual_height.saturating_sub(max_note_size));
+            if actual_width > 0 && actual_height > 0 {
+                let x = rng.random_range(0..actual_width);
+                let y = rng.random_range(0..actual_height);
                 
                 if let Some(note) = FloatingNote::new(x, y, &self.note_images) {
                     self.floating_notes.push(note);

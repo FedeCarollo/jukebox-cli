@@ -24,20 +24,29 @@ pub fn run_app<B: Backend>(terminal: &mut Terminal<B>, music_path: Option<PathBu
 
             let top_chunks = make_horizontal_chunks(vertical_chunks[0], &[70, 30]);
 
-            let jukebox_info_chunks = make_vertical_chunks(top_chunks[0], &[85, 15]);
+            let jukebox_chunk = top_chunks[0]; // Show jukebox matrix
+            let controls_info_chunk = make_horizontal_chunks(vertical_chunks[1], &[70, 30]);
+            let controls_chunk = controls_info_chunk[0]; // Show controls
+            let info_chunk = controls_info_chunk[1]; // Show info block
+            let song_chunk = top_chunks[1]; // Show playlist side
 
-            let jukebox_block = jukebox_info_chunks[0]; //Show jukebox
-            let info_block = jukebox_info_chunks[1];    //Show volume level and song progress
+            render_info_block(f, info_chunk, &jukebox_state);
+            render_playlist_side(f, song_chunk, &jukebox_state);
+            render_jukebox_matrix(f, jukebox_chunk, &mut canvas_state, &jukebox_state);
+            render_controls_block(f, controls_chunk);
 
-            let song_block = top_chunks[1];
-            let controls_block = vertical_chunks[1];
+            // let jukebox_info_chunks = make_vertical_chunks(top_chunks[0], &[85, 15]);
 
-            render_info_block(f, info_block, &jukebox_state);
-            render_playlist_side(f, song_block, &jukebox_state);
-            render_jukebox_matrix(f, jukebox_block, &mut canvas_state, &jukebox_state);
+            // let jukebox_block = jukebox_info_chunks[0]; //Show jukebox
+            // let info_block = jukebox_info_chunks[1];    //Show volume level and song progress
 
-            // Lower block with controls
-            render_controls_block(f, controls_block);
+            // let song_block = top_chunks[1];
+            // let controls_block = vertical_chunks[1];
+
+            // render_info_block(f, info_block, &jukebox_state);
+            // render_playlist_side(f, song_block, &jukebox_state);
+            // render_jukebox_matrix(f, jukebox_block, &mut canvas_state, &jukebox_state);
+            // render_controls_block(f, controls_block);
         })?;
 
         // Check if the song has ended

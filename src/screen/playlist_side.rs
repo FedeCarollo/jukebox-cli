@@ -30,7 +30,7 @@ fn get_song_list(jukebox_state: &JukeboxState) -> Vec<ListItem> {
         .iter()
         .enumerate()
         .map(|(i, song)| {
-            let song_name = song.title().to_string();
+            let song_name = song.title().split('.').next().unwrap_or("").to_string();
             let mut style = Style::default().fg(PALETTE[i % PALETTE.len()]);
             
             if selected == song {
