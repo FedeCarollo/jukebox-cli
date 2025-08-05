@@ -3,7 +3,7 @@ use ratatui::{
     Frame,
     layout::Rect,
     style::{Color, Style},
-    widgets::{Block, Borders, List, ListItem, ListState},
+    widgets::{Block, Borders, List, ListItem, ListState, Paragraph},
 };
 
 const PALETTE: [Color;13] = [
@@ -50,6 +50,19 @@ fn get_song_list(jukebox_state: &JukeboxState) -> Vec<ListItem> {
 
 /// Draw playlist list with the available songs
 pub fn render_playlist_side(f: &mut Frame, area: Rect, jukebox_state: &JukeboxState) {
+    // Check if playlist is empty
+    if jukebox_state.playlist().is_empty() {
+        let no_songs_msg = Paragraph::new("No songs available\n\nPlease add MP3 files to the music directory and restart the jukebox.")
+            .block(Block::default()
+                .title("Available Songs")
+                .borders(Borders::NONE))
+            .style(Style::default().fg(Color::Yellow))
+            .wrap(ratatui::widgets::Wrap { trim: true });
+        
+        f.render_widget(no_songs_msg, area);
+        return;
+    }
+    
     let songs: Vec<ListItem> = get_song_list(jukebox_state);
     
     let songs_list = List::new(songs).block(
