@@ -30,7 +30,7 @@ impl FloatingNote {
             image::imageops::FilterType::Nearest,
         );
         
-        // Converti in pixels con trasparenza
+        // Get transparent pixels
         let mut pixels = Vec::new();
         for py in 0..size {
             let mut row = Vec::new();
@@ -38,12 +38,12 @@ impl FloatingNote {
                 let pixel = resized.get_pixel(px as u32, py as u32);
                 let [r, g, b, a] = pixel.0;
                 
-                if a > 128 { // Pixel visibile
+                if a > 128 {
                     row.push(Span::styled(
                         "█",
                         ratatui::style::Style::default().fg(ratatui::style::Color::Rgb(r, g, b)),
                     ));
-                } else { // Pixel trasparente
+                } else { // Transparent
                     row.push(Span::raw(" "));
                 }
             }
@@ -73,9 +73,9 @@ pub struct CanvasState {
 
 impl CanvasState {
     pub fn new() -> Self {
-        // Carica le immagini delle note
+        // Load image notes
         let note_images = fs::read_dir("img/notes")
-            .unwrap_or_else(|_| panic!("Cartella img/notes deve esistere"))
+            .unwrap_or_else(|_| panic!("Folder img/notes not found. Check if your files are corrupt"))
             .filter_map(Result::ok)
             .filter_map(|entry| image::open(entry.path()).ok())
             .collect::<Vec<_>>();
@@ -93,7 +93,7 @@ impl CanvasState {
     }
     
     pub fn update_is_playing(&mut self, is_playing: bool) {
-        // Se non sta suonando, rimuovi tutte le note
+        // If not playing, clear notes
         if !is_playing {
             self.floating_notes.clear();
         }
@@ -126,14 +126,14 @@ impl CanvasState {
     }
     
     pub fn get_canvas(&mut self, width: u16, height: u16) -> Vec<Vec<Span<'static>>> {
-        let actual_width = width.saturating_sub(2);
-        let actual_height = height.saturating_sub(2);
+        let actual_width = width.saturating_sub(4);
+        let actual_height = height.saturating_sub(4);
         
         if actual_width == 0 || actual_height == 0 {
             return vec![vec![Span::raw(" "); 1]; 1];
         }
         
-        // Controlla se dobbiamo ricreare il background
+        // Check if we need a new background
         let need_new_background = self.last_size != (actual_width, actual_height);
         
         let mut canvas = if need_new_background {
@@ -142,7 +142,7 @@ impl CanvasState {
             self.last_size = (actual_width, actual_height);
             new_background
         } else {
-            // Usa background cached
+            // Use background cached
             if let Some(ref background) = self.cached_background {
                 background.clone()
             } else {
@@ -156,13 +156,13 @@ impl CanvasState {
             for (row_idx, row) in note.pixels.iter().enumerate() {
                 let canvas_y = note.y + row_idx as u16;
                 if canvas_y >= actual_height {
-                    break;
+                    continue;
                 }
                 
                 for (col_idx, pixel) in row.iter().enumerate() {
                     let canvas_x = note.x + col_idx as u16;
                     if canvas_x >= actual_width {
-                        break;
+                        continue;
                     }
                     
                     // Only if pixel hold content

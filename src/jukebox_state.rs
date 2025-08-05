@@ -264,6 +264,27 @@ impl JukeboxState {
         self.current_playback.as_ref().map_or(false, |p| !p.is_paused())
     }
     
+    pub fn is_song_finished(&self) -> bool {
+        if let Some(sink) = &self.sink {
+            sink.empty()
+        } else {
+            false
+        }
+    }
+    
+    pub fn handle_song_end(&mut self) {
+        if self.is_song_finished() {
+            // Se non siamo all'ultima canzone, passa alla successiva
+            if self.current_selection.position < self.playlist.len() - 1 {
+                self.move_selection(1);
+                self.play();
+            } else {
+                // Se siamo all'ultima canzone, ferma la riproduzione
+                self.stop();
+            }
+        }
+    }
+    
     pub fn current_playback_position(&self) -> Duration {
         self.current_playback.as_ref()
             .map_or(Duration::ZERO, |p| p.current_position())

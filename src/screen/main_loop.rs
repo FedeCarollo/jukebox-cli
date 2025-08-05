@@ -1,5 +1,5 @@
 use std::io;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 use crossterm::event;
 use ratatui::{prelude::Backend, Terminal};
@@ -9,20 +9,19 @@ use super::playlist_side::render_playlist_side;
 use super::controls_block::render_controls_block;
 use super::info_block::render_info_block;
 
-pub fn run_app<B: Backend>(terminal: &mut Terminal<B>) -> io::Result<()> {
+pub fn run_app<B: Backend>(terminal: &mut Terminal<B>, music_path: Option<PathBuf>) -> io::Result<()> {
     terminal.clear()?;
     terminal.hide_cursor()?;
-    // Usa una directory di esempio - puoi cambiarla
-    let music_path = Path::new(".");
-    let mut jukebox_state = jukebox_state::JukeboxState::new(music_path);
+
+    let music_path = music_path.unwrap_or_else(|| Path::new("example_music").to_path_buf());
+    let mut jukebox_state = jukebox_state::JukeboxState::new(&music_path);
     let mut canvas_state = canvas_state::CanvasState::new();
     loop {
         terminal.draw(|f| {
             let size = f.area();
-            // Dividi lo schermo in verticale: blocco superiore 80%, inferiore 20%
+           
             let vertical_chunks = make_vertical_chunks(size, &[80, 20]);
 
-            // Nel blocco superiore, dividi in due blocchi orizzontali
             let top_chunks = make_horizontal_chunks(vertical_chunks[0], &[70, 30]);
 
             let jukebox_info_chunks = make_vertical_chunks(top_chunks[0], &[85, 15]);
@@ -37,9 +36,12 @@ pub fn run_app<B: Backend>(terminal: &mut Terminal<B>) -> io::Result<()> {
             render_playlist_side(f, song_block, &jukebox_state);
             render_jukebox_matrix(f, jukebox_block, &mut canvas_state, &jukebox_state);
 
-            // Blocco inferiore con i controlli
+            // Lower block with controls
             render_controls_block(f, controls_block);
         })?;
+
+        // Check if the song has ended
+        jukebox_state.handle_song_end();
 
         if event::poll(std::time::Duration::from_millis(100))? {
             if let event::Event::Key(key) = event::read()? {
