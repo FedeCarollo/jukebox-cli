@@ -23,6 +23,10 @@ pub fn render_controls_block(f: &mut Frame, area: Rect) {
             Span::styled("+/-", Style::default().fg(Color::Magenta)),
             Span::raw(" - Volume"),
         ]),
+        Line::from(vec![
+            Span::styled("g", Style::default().fg(Color::Yellow)),
+            Span::raw(" - Start Driving Game"),
+        ]),
     ];
 
     let controls_paragraph = Paragraph::new(controls)
