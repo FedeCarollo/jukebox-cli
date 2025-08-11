@@ -205,3 +205,23 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ---
 
 *Made with ❤️ and 🎵 in Rust*
+
+### Driving Game Mode
+
+A simple Ratatui-based arcade mini-game that runs alongside the jukebox.
+
+- Controls:
+  - W/S: move up/down
+  - A/D: move left/right between 3 lanes
+  - Space: fire projectile straight up
+  - P: pause/resume
+  - Esc or Q: exit back to the jukebox UI
+  - R: restart when Game Over
+  - M: toggle music while gaming (default: on)
+
+- HUD: shows Score, Lives, and Speed (top row inside the game area).
+- Enemies spawn at the top and move downward; hit them with projectiles for points.
+- Collisions with enemies reduce lives and grant brief invulnerability.
+- Game uses a fixed timestep (≈30 Hz) and runs independently of audio playback.
+
+Requirements: 80x24 terminal or larger recommended. Works without any track loaded.
