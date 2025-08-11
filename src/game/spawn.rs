@@ -12,14 +12,13 @@ pub fn maybe_spawn(state: &mut GameState, now: Instant) {
 
     let elapsed_s = state.elapsed.as_secs_f32();
     let p = (0.20 + elapsed_s * 0.01).min(0.80);
-    let rng = &mut state.rng;
-    if rng.random_bool(p as f64) {
-        let lane = rng.random_range(0..3u8);
+    if state.rng.random_bool(p as f64) {
+        let lane = state.rng.random_range(0..3u8);
+        let speed_jitter = state.rng.random_range(0.0..=2.0);
         let x = state.lane_x(lane);
-        let speed_jitter = rng.random_range(0.0..=2.0);
         let e = Enemy {
             x,
-            y: 1.0,
+            y: 1.0, // start below HUD row
             speed: state.base_speed + speed_jitter,
             w: 1,
             h: 1,

@@ -7,7 +7,7 @@ use ratatui::{
 use crate::game::state::GameState;
 use crate::game::scene::GameScene;
 
-pub fn draw<B: Backend>(f: &mut Frame<B>, state: &GameState, area: Rect) {
+pub fn draw(f: &mut Frame, state: &GameState, area: Rect) {
     let w = area.width as usize;
     let h = area.height as usize;
     if w == 0 || h == 0 {
@@ -17,7 +17,7 @@ pub fn draw<B: Backend>(f: &mut Frame<B>, state: &GameState, area: Rect) {
     let mut rows: Vec<Vec<Span>> = vec![vec![Span::raw(" "); w]; h];
 
     let paused = state.scene == GameScene::Paused;
-    let speed = (state.base_speed + state.elapsed.as_secs_f32() * 0.02);
+    let speed = state.base_speed + state.elapsed.as_secs_f32() * 0.02;
     let hud = format!(
         "Score: {}  Lives: {}  Speed: {:.1} {}",
         state.score,

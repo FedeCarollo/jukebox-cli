@@ -63,12 +63,12 @@ pub fn run_app<B: Backend>(
                                 event::KeyCode::Up => jukebox_state.move_selection(-1),
                                 event::KeyCode::Char('g') => {
                                     // start game
-                                    let size = terminal.size()?;
-                                    // Place game in the jukebox chunk area; compute same layout to get game rect
-                                    // For simplicity, seed with current nanos; stable enough
-                                    let seed = now.elapsed().as_nanos() as u64 ^ now.elapsed().as_micros() as u64 ^ 0x9E3779B97F4A7C15;
-                                    // We'll initialize with current overall size; draw function will be passed precise area each frame
-                                    game_state = Some(game::state::GameState::new(size, seed));
+                                    let sz = terminal.size()?;
+                                    let rect = ratatui::layout::Rect::new(0, 0, sz.width, sz.height);
+                                    let seed = now.elapsed().as_nanos() as u64
+                                        ^ now.elapsed().as_micros() as u64
+                                        ^ 0x9E3779B97F4A7C15;
+                                    game_state = Some(game::state::GameState::new(rect, seed));
                                     mode = AppMode::DrivingGame;
                                 }
                                 _ => {}
@@ -113,9 +113,10 @@ pub fn run_app<B: Backend>(
                                             };
                                         }
                                         Restart => {
-                                            let size = terminal.size()?;
+                                            let sz = terminal.size()?;
+                                            let rect = ratatui::layout::Rect::new(0, 0, sz.width, sz.height);
                                             let seed = now.elapsed().as_nanos() as u64 ^ 0xA2B79C3D;
-                                            *gs = game::state::GameState::new(size, seed);
+                                            *gs = game::state::GameState::new(rect, seed);
                                         }
                                         ToggleMusic => {
                                             music_during_game = !music_during_game;
@@ -136,10 +137,10 @@ pub fn run_app<B: Backend>(
                         }
                     }
                 }
-                event::Event::Resize(_, _) => {
+                event::Event::Resize(w, h) => {
                     if let Some(gs) = &mut game_state {
-                        let size = terminal.size()?;
-                        gs.resize(size);
+                        let rect = ratatui::layout::Rect::new(0, 0, w, h);
+                        gs.resize(rect);
                     }
                 }
                 _ => {}
